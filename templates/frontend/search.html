@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}搜索 - {{ settings.get('site_title', '远山') }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">搜索</h1>
+
+<div class="search-box">
+  <form action="/search" method="GET" class="search-form" autocomplete="off">
+    <div class="search-wrapper">
+      <input type="text" name="q" value="{{ keyword }}" placeholder="输入关键词搜索..." class="search-input" id="search-input" autofocus>
+      <div class="search-suggestions" id="search-suggestions"></div>
+    </div>
+    <button type="submit" class="search-btn">搜索</button>
+  </form>
+</div>
+
+{% if keyword %}
+<div class="search-info">
+  {% if total > 0 %}
+  <p>找到 {{ total }} 篇与 "<strong>{{ keyword }}</strong>" 相关的文章</p>
+  {% else %}
+  <p>没有找到与 "<strong>{{ keyword }}</strong>" 相关的文章</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="post-list">
+  {% for post in posts %}
+  {% set cover_url = post.cover_image if (post.cover_image and (post.cover_image.startswith('/') or post.cover_image.startswith('http'))) else ('/static/uploads/' + post.cover_image) if post.cover_image else '' %}
+  <article class="post-card">
+    <a href="/post/{{ post.slug }}" class="post-card-link">
+      <div class="post-card-bg"{% if cover_url %} style="background-image: url('{{ cover_url }}')"{% endif %}>
+        <div class="post-card-overlay">
+            <div class="post-card-top">
+              <h2 class="post-card-title">{{ post.title }}</h2>
+            </div>
+            <div class="post-card-bottom">
+              <div class="post-card-meta">
+                {% if post.category_name %}
+                <span class="post-card-category">{{ post.category_name }}</span>
+                {% endif %}
+                <span class="post-card-date">{{ post.created_at[:10] | datecn }}</span>
+              </div>
+            </div>
+          </div>
+      </div>
+    </a>
+  </article>
+  {% else %}
+  {% if keyword and total == 0 %}
+  <div class="empty-state">
+    <p>换个关键词试试？</p>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+{% if total_pages > 1 %}
+<nav class="pagination">
+  {% if page > 1 %}
+  <a href="?q={{ keyword }}&page={{ page - 1 }}">← 上一页</a>
+  {% endif %}
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+    <span class="current">{{ p }}</span>
+    {% else %}
+    <a href="?q={{ keyword }}&page={{ p }}">{{ p }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if page < total_pages %}
+  <a href="?q={{ keyword }}&page={{ page + 1 }}">下一页 →</a>
+  {% endif %}
+</nav>
+{% endif %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+  'use strict';
+
+  var input = document.getElementById('search-input');
+  var suggestions = document.getElementById('search-suggestions');
+  var debounceTimer;
+  var selectedIndex = -1;
+
+  if (!input || !suggestions) return;
+
+  function loadHotSearches() {
+    fetch('/api/hot-searches')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.hot && data.hot.length > 0) {
+          showSuggestions({ suggestions: [], hot: data.hot, recent: getRecentSearches() });
+        }
+      });
+  }
+
+  function getRecentSearches() {
+    try {
+      var stored = localStorage.getItem('recent_searches');
+      return stored ? JSON.parse(stored) : [];
+    } catch(e) { return []; }
+  }
+
+  function saveRecentSearch(q) {
+    if (!q || q.length < 1) return;
+    try {
+      var recent = getRecentSearches();
+      recent = recent.filter(function(s) { return s !== q; });
+      recent.unshift(q);
+      if (recent.length > 5) recent = recent.slice(0, 5);
+      localStorage.setItem('recent_searches', JSON.stringify(recent));
+    } catch(e) {}
+  }
+
+  function showSuggestions(data) {
+    var html = '';
+    var recent = data.recent || getRecentSearches();
+    var hasHot = data.hot && data.hot.length > 0;
+    var hasRecent = recent.length > 0;
+
+    if (hasRecent) {
+      html += '<div class="suggestion-header">最近搜索</div>';
+      recent.forEach(function(s) {
+        html += '<a href="/search?q=' + encodeURIComponent(s) + '" class="suggestion-item">🔍 ' + s + '</a>';
+      });
+    }
+
+    if (data.suggestions && data.suggestions.length > 0) {
+      if (hasRecent) html += '<div class="suggestion-header">相关文章</div>';
+      data.suggestions.forEach(function(s) {
+        html += '<a href="/post/' + encodeURIComponent(s.slug) + '" class="suggestion-item">' + s.title + '</a>';
+      });
+    }
+
+    if (hasHot && !input.value.trim()) {
+      html += '<div class="suggestion-header">热门文章</div>';
+      data.hot.forEach(function(s) {
+        html += '<a href="/post/' + encodeURIComponent(s.slug) + '" class="suggestion-item">🔥 ' + s.title + '</a>';
+      });
+    }
+
+    if (html) {
+      suggestions.innerHTML = html;
+      suggestions.classList.add('show');
+    } else {
+      suggestions.classList.remove('show');
+    }
+    selectedIndex = -1;
+  }
+
+  input.addEventListener('input', function() {
+    var q = this.value.trim();
+    clearTimeout(debounceTimer);
+    if (q.length === 0) {
+      loadHotSearches();
+      return;
+    }
+    debounceTimer = setTimeout(function() {
+      fetch('/api/search-suggestions?q=' + encodeURIComponent(q))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          data.recent = getRecentSearches();
+          showSuggestions(data);
+        });
+    }, 300);
+  });
+
+  input.addEventListener('focus', function() {
+    if (this.value.trim().length === 0) {
+      loadHotSearches();
+    }
+  });
+
+  input.addEventListener('keydown', function(e) {
+    var items = suggestions.querySelectorAll('.suggestion-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+      items.forEach(function(el, i) { el.classList.toggle('active', i === selectedIndex); });
+      if (items[selectedIndex]) items[selectedIndex].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIndex = Math.max(selectedIndex - 1, -1);
+      items.forEach(function(el, i) { el.classList.toggle('active', i === selectedIndex); });
+    } else if (e.key === 'Enter' && selectedIndex >= 0 && items[selectedIndex]) {
+      e.preventDefault();
+      window.location.href = items[selectedIndex].href;
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+      suggestions.classList.remove('show');
+    }
+  });
+
+  document.querySelector('.search-form').addEventListener('submit', function() {
+    var q = input.value.trim();
+    if (q) saveRecentSearch(q);
+  });
+})();
+</script>
+{% endblock %}
+{% endblock %}

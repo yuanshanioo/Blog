@@ -1,0 +1,74 @@
+{% extends "admin/base_admin.html" %}
+{% block nav_categories %}active{% endblock %}
+{% block title %}分类管理{% endblock %}
+{% block page_title %}分类管理{% endblock %}
+
+{% block content %}
+<div class="admin-panel">
+  <div class="panel-section">
+    <h3>添加分类</h3>
+    <form method="POST" action="/admin/categories/create" class="admin-form-inline">
+      <input type="text" name="name" placeholder="分类名称" required class="form-input">
+      <input type="text" name="slug" placeholder="别名 (slug)" required class="form-input">
+      <input type="text" name="description" placeholder="描述（可选）" class="form-input">
+      <select name="parent_id" class="form-select">
+        <option value="">无上级分类</option>
+        {% for cat in categories %}
+        <option value="{{ cat.id }}">{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">添加</button>
+    </form>
+  </div>
+
+  <div class="panel-section">
+    <h3>已有分类</h3>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>名称</th>
+          <th>别名</th>
+          <th>上级分类</th>
+          <th>描述</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td>{{ cat.id }}</td>
+          <td>{{ cat.name }}</td>
+          <td>{{ cat.slug }}</td>
+          <td>{{ cat.parent_name or '-' }}</td>
+          <td>{{ cat.description or '-' }}</td>
+          <td class="action-cell">
+            <form method="POST" action="/admin/categories/edit/{{ cat.id }}" style="display:inline-flex;gap:4px;flex-wrap:wrap;">
+              <input type="text" name="name" value="{{ cat.name }}" required class="form-input-inline" placeholder="名称">
+              <input type="text" name="slug" value="{{ cat.slug }}" required class="form-input-inline" placeholder="slug">
+              <input type="text" name="description" value="{{ cat.description }}" class="form-input-inline" placeholder="描述">
+              <select name="parent_id" class="form-select-inline">
+                <option value="">无</option>
+                {% for pc in categories %}
+                  {% if pc.id != cat.id %}
+                  <option value="{{ pc.id }}" {% if cat.parent_id == pc.id %}selected{% endif %}>{{ pc.name }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <button type="submit" class="action-link">保存</button>
+            </form>
+            <form method="POST" action="/admin/categories/delete/{{ cat.id }}" style="display:inline" onsubmit="return confirm('确定要删除此分类吗？')">
+              <button type="submit" class="action-link delete-link">删除</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="empty-cell">暂无分类</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

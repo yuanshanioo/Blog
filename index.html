@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>远山 - 人生就是一段路</title>
+  <meta name="description" content="远山的个人博客，记录编程、阅读与生活思考。人生就是一段路，当你觉得费力时，你已经走上坡路了！">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="avatar">山</div>
+      <div>
+        <div class="site-title">远山</div>
+        <div class="site-subtitle">人生就是一段路，当你觉得费力时，你已经走上坡路了！</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="index.html" class="active">首页</a></li>
+          <li><a href="about.html">关于</a></li>
+          <li><a href="links.html">小伙伴</a></li>
+        </ul>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" title="切换主题">🌙</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="post-list">
+
+    <article class="post-item">
+      <div class="post-header">
+        <h2 class="post-title"><a href="posts/go-concurrency-patterns.html">Go 语言并发编程模式详解</a></h2>
+        <div class="post-meta">
+          <span class="post-category">编码</span>
+          <span>2025-12-18</span>
+          <span class="divider">·</span>
+          <span><span class="read-count" data-key="post-1">0</span> 次阅读</span>
+        </div>
+      </div>
+      <div class="post-excerpt">
+        <p>Go 语言以其简洁优雅的并发模型闻名。本文深入探讨 Goroutine 与 Channel 的常见使用模式，包括扇出/扇入、流水线、超时控制和工作池等经典模式，帮助你编写更高效的并发程序。</p>
+      </div>
+    </article>
+
+    <article class="post-item">
+      <div class="post-header">
+        <h2 class="post-title"><a href="posts/reading-hundred-years-solitude.html">读《百年孤独》—— 家族的第一人被困在树上</a></h2>
+        <div class="post-meta">
+          <span class="post-category">阅读</span>
+          <span>2025-11-30</span>
+          <span class="divider">·</span>
+          <span><span class="read-count" data-key="post-2">0</span> 次阅读</span>
+        </div>
+      </div>
+      <div class="post-excerpt">
+        <p>"家族的第一个人被困在树上，最后一个人正在被蚂蚁吃掉。"马尔克斯用魔幻现实主义编织的马孔多小镇，是一个关于命运与轮回的寓言。重读之后，有了不一样的感悟。</p>
+      </div>
+    </article>
+
+    <article class="post-item">
+      <div class="post-header">
+        <h2 class="post-title"><a href="posts/linux-kernel-notes.html">Linux 内核学习笔记：进程调度</a></h2>
+        <div class="post-meta">
+          <span class="post-category">编码</span>
+          <span>2025-11-15</span>
+          <span class="divider">·</span>
+          <span><span class="read-count" data-key="post-3">0</span> 次阅读</span>
+        </div>
+      </div>
+      <div class="post-excerpt">
+        <p>Linux 内核的进程调度器经历了 O(n)、O(1)、CFS 到如今的多调度器类混合调度等阶段。本文梳理 CFS 调度器的核心数据结构与算法思想，记录学习过程中的一些思考。</p>
+      </div>
+    </article>
+
+    <article class="post-item">
+      <div class="post-header">
+        <h2 class="post-title"><a href="posts/when-i-talk-about-running.html">当我谈跑步时，我谈些什么</a></h2>
+        <div class="post-meta">
+          <span class="post-category">阅读</span>
+          <span>2025-10-28</span>
+          <span class="divider">·</span>
+          <span><span class="read-count" data-key="post-4">0</span> 次阅读</span>
+        </div>
+      </div>
+      <div class="post-excerpt">
+        <p>村上春树说："Pain is inevitable. Suffering is optional." 跑步和写作一样，是一种需要长期坚持的修行。读这本书的过程中，我开始理解他为什么能数十年如一日地坚持跑马拉松。</p>
+      </div>
+    </article>
+
+    <article class="post-item">
+      <div class="post-header">
+        <h2 class="post-title"><a href="posts/sqlite-vs-postgresql.html">SQLite 与 PostgreSQL：选型指南</a></h2>
+        <div class="post-meta">
+          <span class="post-category">编码</span>
+          <span>2025-10-10</span>
+          <span class="divider">·</span>
+          <span><span class="read-count" data-key="post-5">0</span> 次阅读</span>
+        </div>
+      </div>
+      <div class="post-excerpt">
+        <p>SQLite 和 PostgreSQL 分别代表了两种不同的设计哲学。SQLite 以简单、嵌入式、零配置著称；PostgreSQL 则以功能完整、扩展性强为优势。本文从实际场景出发，分析如何选择合适的数据库。</p>
+      </div>
+    </article>
+
+    <article class="post-item">
+      <div class="post-header">
+        <h2 class="post-title"><a href="posts/regular-expression-cheatsheet.html">正则语法速查</a></h2>
+        <div class="post-meta">
+          <span class="post-category">编码</span>
+          <span>2025-09-22</span>
+          <span class="divider">·</span>
+          <span><span class="read-count" data-key="post-6">0</span> 次阅读</span>
+        </div>
+      </div>
+      <div class="post-excerpt">
+        <p>正则表达式是每个程序员的必备技能。本文整理了常用正则语法和技巧，包含字符匹配、量词、分组、零宽断言等核心概念的速查表与实用示例。</p>
+      </div>
+    </article>
+
+  </div>
+
+  <nav class="pagination">
+    <span class="current">1</span>
+    <a href="#">2</a>
+    <a href="#">下一页 →</a>
+  </nav>
+</main>
+
+<footer class="footer">
+  <p>© 2025 远山 · 人生就是一段路</p>
+  <p>Powered by <a href="https://typecho.org" target="_blank">Typecho</a> · Theme by 远山</p>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

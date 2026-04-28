@@ -1,0 +1,72 @@
+{% extends "admin/base_admin.html" %}
+{% block nav_dashboard %}active{% endblock %}
+{% block title %}控制台{% endblock %}
+{% block page_title %}控制台{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ total_posts }}</div>
+    <div class="stat-label">文章总数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ published }}</div>
+    <div class="stat-label">已发布</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ drafts }}</div>
+    <div class="stat-label">草稿</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ total_views }}</div>
+    <div class="stat-label">总阅读量</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ total_cats }}</div>
+    <div class="stat-label">分类数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ total_links }}</div>
+    <div class="stat-label">友链数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ visitor_count }}</div>
+    <div class="stat-label">访客数</div>
+  </div>
+</div>
+
+<div class="admin-section">
+  <div class="section-header">
+    <h3>最近文章</h3>
+    <a href="/admin/posts" class="section-link">查看全部 →</a>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>标题</th>
+        <th>状态</th>
+        <th>发布时间</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in recent_posts %}
+      <tr>
+        <td><a href="/admin/posts/edit/{{ post.id }}">{{ post.title[:40] }}{% if post.title|length > 40 %}...{% endif %}</a></td>
+        <td><span class="status-badge status-{{ post.status }}">{{ '已发布' if post.status == 'published' else '草稿' }}</span></td>
+        <td>{{ post.created_at[:10] }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="3" class="empty-cell">暂无文章</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="quick-actions">
+  <a href="/admin/posts/create" class="action-btn">✏️ 写新文章</a>
+  <a href="/admin/categories" class="action-btn">📂 管理分类</a>
+  <a href="/admin/settings" class="action-btn">⚙️ 系统设置</a>
+</div>
+{% endblock %}

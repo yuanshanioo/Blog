@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}管理后台{% endblock %} - 远山</title>
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">山</a>
+        <span class="sidebar-title">管理后台</span>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="/admin/" class="{% block nav_dashboard %}{% endblock %}">📊 控制台</a></li>
+          <li><a href="/admin/posts" class="{% block nav_posts %}{% endblock %}">📝 文章管理</a></li>
+          <li><a href="/admin/categories" class="{% block nav_categories %}{% endblock %}">📂 分类管理</a></li>
+          <li><a href="/admin/links" class="{% block nav_links %}{% endblock %}">🔗 友链管理</a></li>
+          <li><a href="/admin/settings" class="{% block nav_settings %}{% endblock %}">⚙️ 系统设置</a></li>
+          <li><a href="/admin/profile" class="{% block nav_profile %}{% endblock %}">👤 个人资料</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <span>{{ session.get('display_name', session.get('username', '')) }}</span>
+        <a href="/admin/logout" class="logout-link">退出</a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h2>{% block page_title %}控制台{% endblock %}</h2>
+        <div class="topbar-actions">
+          <a href="/" class="topbar-link" target="_blank">查看网站</a>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/admin.js"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

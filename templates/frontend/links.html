@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block nav_links %}active{% endblock %}
+{% block title %}小伙伴 - {{ settings.get('site_title', '远山') }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">小伙伴</h1>
+<p class="page-desc">一些志同道合的朋友，欢迎交换友链！</p>
+
+<div class="links-grid">
+  {% for link in links %}
+  <a href="{{ link.url }}" target="_blank" class="link-card" rel="noopener">
+    {% if link.avatar %}
+    <img src="{{ link.avatar }}" alt="{{ link.name }}" class="link-avatar-img">
+    {% else %}
+    <div class="link-avatar">{{ link.name[0] }}</div>
+    {% endif %}
+    <div class="link-name">{{ link.name }}</div>
+    {% if link.description %}
+    <div class="link-desc">{{ link.description }}</div>
+    {% endif %}
+  </a>
+  {% else %}
+  <div class="empty-state">
+    <p>暂无友情链接</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

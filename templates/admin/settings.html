@@ -1,0 +1,48 @@
+{% extends "admin/base_admin.html" %}
+{% block nav_settings %}active{% endblock %}
+{% block title %}系统设置{% endblock %}
+{% block page_title %}系统设置{% endblock %}
+
+{% block content %}
+<form method="POST" class="admin-form">
+  <div class="form-group">
+    <label for="site_title">站点标题</label>
+    <input type="text" id="site_title" name="site_title" value="{{ settings.get('site_title', '') }}" class="form-input">
+  </div>
+
+  <div class="form-group">
+    <label for="site_subtitle">副标题</label>
+    <input type="text" id="site_subtitle" name="site_subtitle" value="{{ settings.get('site_subtitle', '') }}" class="form-input">
+  </div>
+
+  <div class="form-group">
+    <label for="site_description">站点描述</label>
+    <textarea id="site_description" name="site_description" class="form-textarea" rows="3">{{ settings.get('site_description', '') }}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="site_keywords">关键词</label>
+    <input type="text" id="site_keywords" name="site_keywords" value="{{ settings.get('site_keywords', '') }}" class="form-input">
+    <span class="form-hint">多个关键词用逗号分隔</span>
+  </div>
+
+  <div class="form-group">
+    <label for="posts_per_page">每页文章数</label>
+    <input type="number" id="posts_per_page" name="posts_per_page" value="{{ settings.get('posts_per_page', '5') }}" class="form-input" min="1" max="50">
+  </div>
+
+  <div class="form-group">
+    <label for="icp_beian">ICP 备案号</label>
+    <input type="text" id="icp_beian" name="icp_beian" value="{{ settings.get('icp_beian', '') }}" class="form-input" placeholder="如 陕ICP备15000294号-4">
+  </div>
+
+  <div class="form-group">
+    <label for="footer_copyright">页脚版权信息</label>
+    <input type="text" id="footer_copyright" name="footer_copyright" value="{{ settings.get('footer_copyright', '') }}" class="form-input">
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">保存设置</button>
+  </div>
+</form>
+{% endblock %}

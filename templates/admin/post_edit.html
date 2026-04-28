@@ -1,0 +1,152 @@
+{% extends "admin/base_admin.html" %}
+{% block nav_posts %}active{% endblock %}
+{% block title %}{% if post %}编辑文章{% else %}写新文章{% endif %}{% endblock %}
+{% block page_title %}{% if post %}编辑文章{% else %}写新文章{% endif %}{% endblock %}
+
+{% block content %}
+<form method="POST" class="admin-form">
+  <div class="form-group">
+    <label for="title">标题</label>
+    <input type="text" id="title" name="title" value="{{ post.title if post else '' }}" required class="form-input" placeholder="请输入文章标题">
+  </div>
+
+  <div class="form-group">
+    <label for="slug">别名 (Slug)</label>
+    <input type="text" id="slug" name="slug" value="{{ post.slug if post else '' }}" class="form-input" placeholder="留空自动生成">
+    <span class="form-hint">URL 中显示的名称，如 my-post-title</span>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="category_id">分类</label>
+      <select id="category_id" name="category_id" class="form-select">
+        <option value="">无分类</option>
+        {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if post and post.category_id == cat.id %}selected{% endif %}>
+          {{ '─' * (1 if cat.parent_id else 0) }}{{ cat.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="status">状态</label>
+      <select id="status" name="status" class="form-select">
+        <option value="draft" {% if post and post.status == 'draft' %}selected{% endif %}>草稿</option>
+        <option value="published" {% if not post or post.status == 'published' %}selected{% endif %}>已发布</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="tags">标签</label>
+    <input type="text" id="tags" name="tags" value="{{ post.tags if post else '' }}" class="form-input" placeholder="Go,并发,编程">
+    <span class="form-hint">多个标签用逗号分隔</span>
+  </div>
+
+  <div class="form-group">
+    <label for="cover_image">封面图片</label>
+    <div class="cover-image-wrap">
+      <input type="text" id="cover_image" name="cover_image" value="{{ post.cover_image if post else '' }}" class="form-input" placeholder="上传后点击图片下方「设为封面」按钮，或手动输入图片 URL">
+      <button type="button" class="btn btn-secondary btn-sm" id="set-cover-btn" style="display:none">🖼️ 设为封面</button>
+    </div>
+    <span class="form-hint">显示在首页文章卡片上的封面图片</span>
+  </div>
+
+  <div class="form-group">
+    <label for="excerpt">摘要</label>
+    <textarea id="excerpt" name="excerpt" class="form-textarea" rows="3" placeholder="文章摘要（可选）">{{ post.excerpt if post else '' }}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="content">内容 (Markdown)</label>
+    <div class="editor-toolbar">
+      <button type="button" class="btn btn-secondary btn-sm" id="upload-btn">📁 上传图片</button>
+      <input type="file" id="file-input" accept="image/*" style="display:none">
+      <span class="form-hint" id="upload-status"></span>
+    </div>
+    <textarea id="content" name="content" class="form-textarea code-textarea" rows="20" placeholder="使用 Markdown 格式编写文章内容">{{ post.content if post else '' }}</textarea>
+  </div>
+
+<script>
+(function() {
+  var uploadBtn = document.getElementById('upload-btn');
+  var fileInput = document.getElementById('file-input');
+  var content = document.getElementById('content');
+  var status = document.getElementById('upload-status');
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (!this.files || !this.files[0]) return;
+      var formData = new FormData();
+      formData.append('file', this.files[0]);
+      status.textContent = '上传中...';
+      status.style.color = 'var(--text-tertiary)';
+
+      fetch('/admin/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.url) {
+          var imgMarkdown = '![](' + data.url + ')';
+          var start = content.selectionStart;
+          var end = content.selectionEnd;
+          content.value = content.value.substring(0, start) + imgMarkdown + content.value.substring(end);
+          content.focus();
+          content.selectionStart = content.selectionEnd = start + imgMarkdown.length;
+          status.textContent = '✅ 上传成功!';
+          status.style.color = 'var(--success)';
+          // Show "set as cover" button
+          var setCoverBtn = document.getElementById('set-cover-btn');
+          if (setCoverBtn) {
+            setCoverBtn.style.display = 'inline-block';
+            setCoverBtn.onclick = function() {
+              document.getElementById('cover_image').value = data.url;
+              setCoverBtn.textContent = '✅ 已设为封面';
+              setCoverBtn.style.display = 'none';
+            };
+          }
+        } else {
+          status.textContent = '❌ ' + (data.error || '上传失败');
+          status.style.color = 'var(--danger)';
+        }
+      })
+      .catch(function() {
+        status.textContent = '❌ 上传失败，请重试';
+        status.style.color = 'var(--danger)';
+      });
+      this.value = '';
+    });
+
+    // Drag & drop support
+    content.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.style.borderColor = 'var(--accent)';
+    });
+    content.addEventListener('dragleave', function() {
+      this.style.borderColor = '';
+    });
+    content.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.style.borderColor = '';
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+})();
+</script>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{% if post %}保存修改{% else %}发布文章{% endif %}</button>
+    <a href="/admin/posts" class="btn btn-secondary">取消</a>
+  </div>
+</form>
+{% endblock %}

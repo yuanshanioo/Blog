@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <atom:link href="{{ url_for('main.feed', _external=True) }}" rel="self" type="application/rss+xml"/>
+    <title>{{ settings.get('site_title', '远山') }}</title>
+    <link>{{ url_for('main.index', _external=True) }}</link>
+    <description>{{ settings.get('site_description', '') }}</description>
+    <language>zh-CN</language>
+    {% if posts %}
+    <lastBuildDate>{{ posts[0].created_at[:19] | rssdate }}</lastBuildDate>
+    {% endif %}
+    {% for post in posts %}
+    <item>
+      <title>{{ post.title }}</title>
+      <link>{{ url_for('main.post', slug=post.slug, _external=True) }}</link>
+      <guid>{{ url_for('main.post', slug=post.slug, _external=True) }}</guid>
+      <pubDate>{{ post.created_at[:19] | rssdate }}</pubDate>
+      <description><![CDATA[{{ post.excerpt or post.content[:200] }}]]></description>
+      {% if post.category_name %}
+      <category>{{ post.category_name }}</category>
+      {% endif %}
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

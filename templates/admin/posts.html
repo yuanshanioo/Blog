@@ -1,0 +1,67 @@
+{% extends "admin/base_admin.html" %}
+{% block nav_posts %}active{% endblock %}
+{% block title %}文章管理{% endblock %}
+{% block page_title %}文章管理{% endblock %}
+
+{% block content %}
+<div class="table-toolbar">
+  <a href="/admin/posts/create" class="btn btn-primary">+ 写新文章</a>
+  <div class="table-filters">
+    <a href="/admin/posts" class="filter-link {% if not current_status %}active{% endif %}">全部 ({{ total }})</a>
+    <a href="/admin/posts?status=published" class="filter-link {% if current_status == 'published' %}active{% endif %}">已发布</a>
+    <a href="/admin/posts?status=draft" class="filter-link {% if current_status == 'draft' %}active{% endif %}">草稿</a>
+  </div>
+</div>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>标题</th>
+      <th>分类</th>
+      <th>阅读</th>
+      <th>状态</th>
+      <th>发布时间</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for post in posts %}
+    <tr>
+      <td><a href="/admin/posts/edit/{{ post.id }}">{{ post.title[:50] }}{% if post.title|length > 50 %}...{% endif %}</a></td>
+      <td>{{ post.category_name or '-' }}</td>
+      <td>{{ post.views }}</td>
+      <td><span class="status-badge status-{{ post.status }}">{{ '已发布' if post.status == 'published' else '草稿' }}</span></td>
+      <td>{{ post.created_at[:10] }}</td>
+      <td class="action-cell">
+        <a href="/admin/posts/edit/{{ post.id }}" class="action-link">编辑</a>
+        <form method="POST" action="/admin/posts/delete/{{ post.id }}" style="display:inline" onsubmit="return confirm('确定要删除这篇文章吗？')">
+          <button type="submit" class="action-link delete-link">删除</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="6" class="empty-cell">暂无文章</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if total_pages > 1 %}
+<div class="admin-pagination">
+  {% if page > 1 %}
+  <a href="?page={{ page - 1 }}{% if current_status %}&status={{ current_status }}{% endif %}">← 上一页</a>
+  {% endif %}
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+    <span class="current">{{ p }}</span>
+    {% else %}
+    <a href="?page={{ p }}{% if current_status %}&status={{ current_status }}{% endif %}">{{ p }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if page < total_pages %}
+  <a href="?page={{ page + 1 }}{% if current_status %}&status={{ current_status }}{% endif %}">下一页 →</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

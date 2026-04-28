@@ -1,0 +1,66 @@
+{% extends "admin/base_admin.html" %}
+{% block nav_links %}active{% endblock %}
+{% block title %}友链管理{% endblock %}
+{% block page_title %}友链管理{% endblock %}
+
+{% block content %}
+<div class="admin-panel">
+  <div class="panel-section">
+    <h3>添加友链</h3>
+    <form method="POST" action="/admin/links/create" class="admin-form-inline">
+      <input type="text" name="name" placeholder="站点名称" required class="form-input">
+      <input type="url" name="url" placeholder="https://example.com" required class="form-input">
+      <input type="text" name="description" placeholder="描述（可选）" class="form-input">
+      <label class="checkbox-label">
+        <input type="checkbox" name="is_visible" value="1" checked> 显示
+      </label>
+      <button type="submit" class="btn btn-primary">添加</button>
+    </form>
+  </div>
+
+  <div class="panel-section">
+    <h3>友链列表</h3>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>名称</th>
+          <th>URL</th>
+          <th>描述</th>
+          <th>显示</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for link in links %}
+        <tr>
+          <td>{{ link.id }}</td>
+          <td>{{ link.name }}</td>
+          <td><a href="{{ link.url }}" target="_blank">{{ link.url[:30] }}{% if link.url|length > 30 %}...{% endif %}</a></td>
+          <td>{{ link.description or '-' }}</td>
+          <td>{{ '✓' if link.is_visible else '✗' }}</td>
+          <td class="action-cell">
+            <form method="POST" action="/admin/links/edit/{{ link.id }}" style="display:inline-flex;gap:4px;flex-wrap:wrap;">
+              <input type="text" name="name" value="{{ link.name }}" required class="form-input-inline" placeholder="名称">
+              <input type="url" name="url" value="{{ link.url }}" required class="form-input-inline" placeholder="URL">
+              <input type="text" name="description" value="{{ link.description }}" class="form-input-inline" placeholder="描述">
+              <label class="checkbox-label">
+                <input type="checkbox" name="is_visible" value="1" {% if link.is_visible %}checked{% endif %}> 显示
+              </label>
+              <button type="submit" class="action-link">保存</button>
+            </form>
+            <form method="POST" action="/admin/links/delete/{{ link.id }}" style="display:inline" onsubmit="return confirm('确定要删除此链接吗？')">
+              <button type="submit" class="action-link delete-link">删除</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="empty-cell">暂无链接</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

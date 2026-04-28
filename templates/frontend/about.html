@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block nav_about %}active{% endblock %}
+{% block title %}关于 - {{ settings.get('site_title', '远山') }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">关于</h1>
+
+<div class="about-content">
+  <div class="about-avatar">
+    <div class="avatar-large">山</div>
+  </div>
+
+  <p>你好，我是<strong>远山</strong>，一名后端开发者。这个博客是我的个人空间，记录技术学习、阅读感悟和生活思考。</p>
+
+  <p>取名"远山"，是因为我觉得人生就像爬山，看似简单，却需要日复一日的练习与坚持。</p>
+
+  <p>我信奉"如无必要，勿增实体"的设计原则，在技术选型上倾向于简单够用的方案。主要使用的技术栈包括 Go、PHP、Python，数据库方面喜欢 SQLite 和 PostgreSQL。</p>
+
+  <h2>博客栏目</h2>
+  <ul>
+    <li><strong>编码</strong> — 技术文章、编程笔记、开源项目分享</li>
+    <li><strong>阅读</strong> — 读书笔记、书评、摘抄与感悟</li>
+    <li><strong>杂谈</strong> — 生活随笔与思考</li>
+  </ul>
+
+  <h2>联系我</h2>
+  <ul>
+    <li>GitHub：<a href="https://github.com/dbkuaizi" target="_blank">github.com/dbkuaizi</a></li>
+    <li>掘金：<a href="https://juejin.cn/user/1081575171436142" target="_blank">远山</a></li>
+  </ul>
+</div>
+{% endblock %}

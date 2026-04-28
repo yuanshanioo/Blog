@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} - {{ settings.get('site_title', '远山') }}{% endblock %}
+{% block description %}{{ post.excerpt or post.title }}{% endblock %}
+
+{% block content %}
+<div class="article-layout">
+  <!-- TOC Sidebar -->
+  {% if toc %}
+  <aside class="article-toc" id="article-toc">
+    <h3 class="toc-title">📖 目录</h3>
+    <nav class="toc-nav" id="toc-nav">
+      <ul>
+        {% for item in toc %}
+        <li class="toc-level-{{ item.level }}">
+          <a href="#{{ item.id }}" class="toc-link">{{ item.text }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+    <div class="toc-reading-time">
+      <span id="reading-elapsed">0 分钟</span>
+      <span class="toc-sep">·</span>
+      <span>约 {{ read_time }} 分钟</span>
+    </div>
+    <div class="toc-progress">
+      <div class="toc-progress-bar" id="toc-progress-bar"></div>
+    </div>
+  </aside>
+  {% endif %}
+
+  <!-- Article Content -->
+  <div class="article-main">
+    <article class="article">
+      <div class="article-header">
+        <h1 class="article-title">{{ post.title }}</h1>
+        <div class="article-meta">
+          {% if post.category_name %}
+          <a href="/category/{{ post.category_slug }}" class="post-category">{{ post.category_name }}</a>
+          {% endif %}
+          <span>{{ post.created_at[:10] }}</span>
+          <span>·</span>
+          <span>{{ post.views }} 次阅读</span>
+          <span>·</span>
+          <span class="read-time">{{ read_time }} 分钟阅读</span>
+        </div>
+      </div>
+
+      <div class="article-content" id="article-content">
+        {% if post.is_markdown %}
+          {% set lines = post.content.split('\n') %}
+          {% set ns = namespace(in_code=false, code_lang='', code_lines=[]) %}
+
+          {% for line in lines %}
+            {% if line.startswith('```') and not ns.in_code %}
+              {% set ns.in_code = true %}
+              {% set ns.code_lang = line[3:].strip() %}
+              {% set ns.code_lines = [] %}
+            {% elif line.startswith('```') and ns.in_code %}
+              {% set ns.in_code = false %}
+              <pre><code class="language-{{ ns.code_lang }}">{{ ns.code_lines|join('\n') }}</code></pre>
+            {% elif ns.in_code %}
+              {% set ns.code_lines = ns.code_lines + [line] %}
+            {% elif line.startswith('## ') %}
+              {% set heading_text = line[3:] %}
+              <h2 id="{{ heading_text|slugify }}">{{ heading_text }}</h2>
+            {% elif line.startswith('### ') %}
+              {% set heading_text = line[4:] %}
+              <h3 id="{{ heading_text|slugify }}">{{ heading_text }}</h3>
+            {% elif line.startswith('> ') %}
+              <blockquote><p>{{ line[2:] }}</p></blockquote>
+            {% elif line.startswith('- **') and '**' in line %}
+              <li><strong>{{ line.split('**')[1] }}</strong>{{ line.split('**')[2] if '**' in line[line.find('**')+2:] else '' }}</li>
+            {% elif line.startswith('- ') %}
+              <li>{{ line[2:] }}</li>
+            {% elif '![' in line and '](' in line %}
+              {% set img_parts = line.split('![') %}
+              {% if img_parts|length > 1 %}
+                {% set img_inner = img_parts[1] %}
+                {% set alt = img_inner.split('](')[0] %}
+                {% set url_rest = img_inner.split('](')[1] %}
+                {% set url = url_rest.split(')')[0] %}
+                {% set after = url_rest.split(')', 1)[1] if ')' in url_rest else '' %}
+                {{ img_parts[0] }}<img src="{{ url }}" alt="{{ alt }}" loading="lazy">{{ after }}
+              {% else %}
+                <p>{{ line }}</p>
+              {% endif %}
+            {% elif line.strip() == '' %}
+              <p></p>
+            {% else %}
+              <p>{{ line }}</p>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {{ post.content|safe }}
+        {% endif %}
+      </div>
+
+      {% if post.tags %}
+      <div class="article-footer">
+        <div class="article-tags">
+          {% for tag in post.tags.split(',') %}
+          <span class="article-tag">{{ tag.strip() }}</span>
+        {% endfor %}
+        </div>
+        <a href="/" class="back-home">← 返回首页</a>
+      </div>
+      {% endif %}
+    </article>
+  </div>
+</div>
+
+{% if toc %}
+<script>
+(function() {
+  'use strict';
+
+  // Reading time tracker
+  var startTime = Date.now();
+  var readTime = {{ read_time }};
+  var elapsedEl = document.getElementById('reading-elapsed');
+
+  function updateReadingTime() {
+    var elapsed = Math.round((Date.now() - startTime) / 60000);
+    if (elapsed < 1) {
+      elapsedEl.textContent = '刚刚开始';
+    } else {
+      var remaining = Math.max(0, readTime - elapsed);
+      elapsedEl.textContent = elapsed + ' 分钟 · 剩余 ' + remaining + ' 分钟';
+    }
+  }
+  setInterval(updateReadingTime, 10000);
+
+  // TOC active highlight based on scroll
+  var headings = document.querySelectorAll('#article-content h2, #article-content h3');
+  var tocLinks = document.querySelectorAll('.toc-link');
+  var progressBar = document.getElementById('toc-progress-bar');
+
+  if (headings.length > 0 && tocLinks.length > 0) {
+    function updateTOC() {
+      var scrollTop = window.scrollY;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+      // Progress bar
+      if (progressBar) {
+        var progress = docHeight > 0 ? Math.min((scrollTop / docHeight) * 100, 100) : 0;
+        progressBar.style.width = progress + '%';
+      }
+
+      // Active heading
+      var currentIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        if (headings[i].offsetTop - 120 <= scrollTop) {
+          currentIndex = i;
+          break;
+        }
+      }
+
+      tocLinks.forEach(function(link, idx) {
+        link.classList.toggle('active', idx === currentIndex);
+      });
+    }
+
+    window.addEventListener('scroll', updateTOC, { passive: true });
+    updateTOC();
+  }
+})();
+</script>
+{% endif %}
+{% endblock %}
