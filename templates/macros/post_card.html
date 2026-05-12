@@ -1,0 +1,25 @@
+{% macro post_card(post) %}
+{% set cover_url = post.cover_image if (post.cover_image and (post.cover_image.startswith('/') or post.cover_image.startswith('http'))) else ('/static/uploads/' + post.cover_image) if post.cover_image else '' %}
+<article class="post-card">
+  <a href="/post/{{ post.slug }}" class="post-card-link">
+    <div class="post-card-bg"{% if cover_url %} style="background-image: url('{{ cover_url }}')"{% endif %}>
+      <div class="post-card-overlay">
+        <div class="post-card-top">
+          <h2 class="post-card-title">{{ post.title }}</h2>
+          {% if post.excerpt %}
+          <p class="post-card-excerpt">{{ post.excerpt[:80] }}{% if post.excerpt|length > 80 %}...{% endif %}</p>
+          {% endif %}
+        </div>
+        <div class="post-card-bottom">
+          <div class="post-card-meta">
+            {% if post.category_name %}
+            <span class="post-card-category">{{ post.category_name }}</span>
+            {% endif %}
+            <time class="post-card-date" datetime="{{ post.created_at[:10] }}">{{ post.created_at[:10] | datecn }}</time>
+          </div>
+        </div>
+      </div>
+    </div>
+  </a>
+</article>
+{% endmacro %}

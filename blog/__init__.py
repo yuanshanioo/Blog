@@ -66,13 +66,14 @@ def create_app(config_name='development'):
     @app.context_processor
     def inject_globals():
         from blog.models.setting import get_all_settings
+        from datetime import datetime
         settings = get_all_settings()
         cat_list = _get_nav_categories()
         from blog.models.setting import get_setting
         return {
             'settings': settings,
             'nav_categories': cat_list,
-            'current_year': 2026,
+            'current_year': datetime.now().year,
             'visitor_count': get_setting('site_visits', '0')
         }
 
@@ -88,11 +89,8 @@ def create_app(config_name='development'):
 
 
 def _get_nav_categories():
-    from blog.db import get_db
-    db = get_db()
-    rows = db.execute(
-        'SELECT * FROM categories ORDER BY parent_id IS NULL, parent_id, sort_order'
-    ).fetchall()
+    from blog.db import query
+    rows = query('SELECT * FROM categories ORDER BY parent_id IS NULL, parent_id, sort_order')
     parents = [r for r in rows if r['parent_id'] is None]
     children = [r for r in rows if r['parent_id'] is not None]
     result = []

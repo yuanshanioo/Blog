@@ -12,40 +12,40 @@ def get_all_categories():
 
 
 def get_category_by_slug(slug):
-    return query('SELECT * FROM categories WHERE slug = ?', [slug], one=True)
+    return query('SELECT * FROM categories WHERE slug = %s', [slug], one=True)
 
 
 def get_category_by_id(cat_id):
-    return query('SELECT * FROM categories WHERE id = ?', [cat_id], one=True)
+    return query('SELECT * FROM categories WHERE id = %s', [cat_id], one=True)
 
 
 def get_child_categories(parent_id):
-    return query('SELECT * FROM categories WHERE parent_id = ? ORDER BY sort_order', [parent_id])
+    return query('SELECT * FROM categories WHERE parent_id = %s ORDER BY sort_order', [parent_id])
 
 
 def create_category(name, slug, description='', parent_id=None, sort_order=0):
     return execute(
-        'INSERT INTO categories (name, slug, description, parent_id, sort_order) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO categories (name, slug, description, parent_id, sort_order) VALUES (%s, %s, %s, %s, %s)',
         [name, slug, description, parent_id, sort_order]
     )
 
 
 def update_category(cat_id, name, slug, description='', parent_id=None, sort_order=0):
     execute(
-        'UPDATE categories SET name=?, slug=?, description=?, parent_id=?, sort_order=? WHERE id=?',
+        'UPDATE categories SET name=%s, slug=%s, description=%s, parent_id=%s, sort_order=%s WHERE id=%s',
         [name, slug, description, parent_id, sort_order, cat_id]
     )
 
 
 def delete_category(cat_id):
-    execute('DELETE FROM categories WHERE id = ?', [cat_id])
+    execute('DELETE FROM categories WHERE id = %s', [cat_id])
 
 
 def get_category_post_count(cat_id=None):
     """Get post count per category, optionally for a specific category."""
     if cat_id:
         return query(
-            "SELECT COUNT(*) as count FROM posts WHERE category_id = ? AND status = 'published'",
+            "SELECT COUNT(*) as count FROM posts WHERE category_id = %s AND status = 'published'",
             [cat_id], one=True
         )['count']
     categories = query(

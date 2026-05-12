@@ -1,13 +1,18 @@
 {% extends "base.html" %}
 {% block nav_about %}active{% endblock %}
 {% block title %}关于 - {{ settings.get('site_title', '远山') }}{% endblock %}
+{% block description %}关于远山，一名后端开发者的个人博客{% endblock %}
+
+{% block canonical %}
+<link rel="canonical" href="{{ url_for('main.about', _external=True) }}">
+{% endblock %}
 
 {% block content %}
 <h1 class="page-title">关于</h1>
 
 <div class="about-content">
   <div class="about-avatar">
-    <div class="avatar-large">山</div>
+    <div class="avatar-large" aria-hidden="true">山</div>
   </div>
 
   <p>你好，我是<strong>远山</strong>，一名后端开发者。这个博客是我的个人空间，记录技术学习、阅读感悟和生活思考。</p>
@@ -25,8 +30,8 @@
 
   <h2>联系我</h2>
   <ul>
-    <li>GitHub：<a href="https://github.com/Le-xiaoyu" target="_blank">github.com/Le-xiaoyu</a></li>
-    <li>掘金：<a href="https://juejin.cn/user/108157517143610323dd" target="_blank">远山</a></li>
+    <li>GitHub：<a href="https://github.com/Le-xiaoyu" target="_blank" rel="noopener">github.com/Le-xiaoyu</a></li>
+    <li>掘金：<a href="https://juejin.cn/user/108157517143610323dd" target="_blank" rel="noopener">远山</a></li>
   </ul>
 </div>
 {% endblock %}

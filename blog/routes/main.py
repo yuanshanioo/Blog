@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, abort, redirect, url_for, make_response, jsonify, send_from_directory, current_app
 from blog.models.post import (get_posts, get_post_by_slug, get_archives,
                                search_posts, increment_views, get_recent_posts,
-                               get_popular_posts)
-from blog.models.category import get_category_by_slug, get_category_post_count
+                               get_popular_posts, get_prev_next_posts, get_related_posts)
+from blog.models.category import get_category_by_slug, get_category_post_count, get_all_categories
 from blog.models.link import get_all_links
 from blog.models.setting import get_all_settings
 from blog.db import query
@@ -94,9 +94,16 @@ def post(slug):
     word_count = len(content.replace(' ', ''))
     read_time = max(1, round(word_count / 300))
 
+    # Previous/next and related posts
+    prev_post, next_post = get_prev_next_posts(post_data['id'], post_data.get('category_id'))
+    related_posts = get_related_posts(post_data['id'], post_data.get('category_id'),
+                                       post_data.get('tags', ''))
+
     return render_template('frontend/post.html',
                            post=post_data, recent=recent, popular=popular,
-                           toc=toc, read_time=read_time, word_count=word_count)
+                           toc=toc, read_time=read_time, word_count=word_count,
+                           prev_post=prev_post, next_post=next_post,
+                           related_posts=related_posts)
 
 
 @main_bp.route('/api/search-suggestions')
@@ -105,7 +112,7 @@ def search_suggestions():
     if not q or len(q) < 1:
         return jsonify({'suggestions': [], 'hot': []})
     suggestions = query(
-        "SELECT title, slug FROM posts WHERE status='published' AND title LIKE ? LIMIT 8",
+        "SELECT title, slug FROM posts WHERE status='published' AND title LIKE %s LIMIT 8",
         [f'%{q}%']
     )
     return jsonify({'suggestions': [dict(s) for s in suggestions]})
@@ -128,6 +135,24 @@ def feed():
     posts, _ = get_posts(page=1, per_page=20)
     settings = get_all_settings()
     xml = render_template('feed.xml', posts=posts, settings=settings)
+    response = make_response(xml)
+    response.content_type = 'application/xml; charset=utf-8'
+    return response
+
+
+@main_bp.route('/robots.txt')
+def robots():
+    txt = render_template('robots.txt')
+    response = make_response(txt)
+    response.content_type = 'text/plain; charset=utf-8'
+    return response
+
+
+@main_bp.route('/sitemap.xml')
+def sitemap():
+    posts, _ = get_posts(page=1, per_page=500)
+    categories = get_all_categories()
+    xml = render_template('sitemap.xml', posts=posts, categories=categories)
     response = make_response(xml)
     response.content_type = 'application/xml; charset=utf-8'
     return response

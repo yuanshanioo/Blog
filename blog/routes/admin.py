@@ -3,7 +3,7 @@ import random
 import time
 import uuid
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, current_app
-from blog.middleware.auth import login_required, admin_required
+from blog.middleware.auth import login_required
 from blog.models.user import get_user_by_username, get_user_by_id, verify_password, create_user, update_user
 from blog.models.post import (get_posts, get_post_by_id, create_post, update_post,
                                delete_post, get_all_posts_admin)
@@ -12,7 +12,7 @@ from blog.models.category import (get_all_categories, get_category_by_id,
                                    get_category_post_count)
 from blog.models.link import get_all_links, get_link_by_id, create_link, update_link, delete_link
 from blog.models.setting import get_all_settings, update_settings
-from blog.db import query, execute, get_db
+from blog.db import query, execute
 from blog.utils.helpers import allowed_file
 
 admin_bp = Blueprint('admin', __name__)
@@ -40,7 +40,7 @@ def login():
     # Check IP ban (5 failed attempts in 15 minutes)
     recent_attempts = query(
         "SELECT COUNT(*) as c FROM login_attempts "
-        "WHERE ip_address = ? AND attempt_time > datetime('now', '-15 minutes')",
+        "WHERE ip_address = %s AND attempt_time > (NOW() - INTERVAL 15 MINUTE)",
         [ip_address], one=True
     )['c']
 
@@ -62,7 +62,7 @@ def login():
         user = get_user_by_username(username)
         if user and verify_password(password, user['password_hash']):
             # Clear failed attempts on success
-            execute("DELETE FROM login_attempts WHERE ip_address = ?", [ip_address])
+            execute("DELETE FROM login_attempts WHERE ip_address = %s", [ip_address])
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['display_name'] = user['display_name']
@@ -71,7 +71,7 @@ def login():
             return redirect(url_for('admin.dashboard'))
 
         # Record failed attempt
-        execute("INSERT INTO login_attempts (ip_address) VALUES (?)", [ip_address])
+        execute("INSERT INTO login_attempts (ip_address) VALUES (%s)", [ip_address])
         attempts_left = max(0, 4 - recent_attempts)
         if attempts_left > 0:
             flash(f'用户名或密码错误，还剩 {attempts_left} 次尝试机会', 'error')

@@ -1,30 +1,17 @@
 {% extends "base.html" %}
+{% from "macros/post_card.html" import post_card %}
+{% from "macros/pagination.html" import pagination %}
 {% block nav_home %}active{% endblock %}
+
+{% block canonical %}
+<link rel="canonical" href="{{ url_for('main.index', _external=True) }}">
+{% endblock %}
 
 {% block content %}
 <div class="post-list">
   {% if posts %}
     {% for post in posts %}
-    {% set cover_url = post.cover_image if (post.cover_image and (post.cover_image.startswith('/') or post.cover_image.startswith('http'))) else ('/static/uploads/' + post.cover_image) if post.cover_image else '' %}
-    <article class="post-card">
-      <a href="/post/{{ post.slug }}" class="post-card-link">
-        <div class="post-card-bg"{% if cover_url %} style="background-image: url('{{ cover_url }}')"{% endif %}>
-          <div class="post-card-overlay">
-            <div class="post-card-top">
-              <h2 class="post-card-title">{{ post.title }}</h2>
-            </div>
-            <div class="post-card-bottom">
-              <div class="post-card-meta">
-                {% if post.category_name %}
-                <span class="post-card-category">{{ post.category_name }}</span>
-                {% endif %}
-                <span class="post-card-date">{{ post.created_at[:10] | datecn }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </a>
-    </article>
+    {{ post_card(post) }}
     {% endfor %}
   {% else %}
     <div class="empty-state">
@@ -33,25 +20,5 @@
   {% endif %}
 </div>
 
-{% if total_pages > 1 %}
-<nav class="pagination">
-  {% if page > 1 %}
-  <a href="?page={{ page - 1 }}" class="page-prev">← 上一页</a>
-  {% endif %}
-
-  {% for p in range(1, total_pages + 1) %}
-    {% if p == page %}
-    <span class="page-current">{{ p }}</span>
-    {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
-    <a href="?page={{ p }}" class="page-num">{{ p }}</a>
-    {% elif p == 4 or p == total_pages - 3 %}
-    <span class="page-ellipsis">…</span>
-    {% endif %}
-  {% endfor %}
-
-  {% if page < total_pages %}
-  <a href="?page={{ page + 1 }}" class="page-next">下一页 →</a>
-  {% endif %}
-</nav>
-{% endif %}
+{{ pagination(page, total_pages) }}
 {% endblock %}

@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block nav_archive %}active{% endblock %}
 {% block title %}归档 - {{ settings.get('site_title', '远山') }}{% endblock %}
+{% block description %}{{ settings.get('site_title', '远山') }} 文章归档{% endblock %}
+
+{% block canonical %}
+<link rel="canonical" href="{{ url_for('main.archives', _external=True) }}">
+{% endblock %}
 
 {% block content %}
 <h1 class="page-title">归档</h1>
@@ -13,7 +18,7 @@
       <ul class="archive-posts">
         {% for post in posts %}
         <li class="archive-post-item">
-          <span class="archive-date">{{ post.created_at[:10] }}</span>
+          <time class="archive-date" datetime="{{ post.created_at[:10] }}">{{ post.created_at[:10] }}</time>
           <a href="/post/{{ post.slug }}" class="archive-title">{{ post.title }}</a>
           {% if post.category_name %}
           <span class="archive-category">{{ post.category_name }}</span>

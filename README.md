@@ -1,6 +1,195 @@
+<a id="top"></a>
+
+**[English](#english) | [中文](#中文)**
+
+---
+
+<a id="english"></a>
+
+# 远山 (Distant Mountain)
+
+> Personal Blog System — Built with Flask + MySQL
+
+[Switch to Chinese / 切换到中文](#中文) | [Back to Top](#top)
+
+远山 is a full-featured personal blog built with Python Flask, supporting Markdown writing, multi-theme switching, admin management, RSS feeds, and more. Designed for running a lightweight blog on your own server.
+
+## Features
+
+**Writing & Display**
+- Markdown article editing with code blocks, images, blockquotes
+- Article cover images with responsive card layout
+- Table of Contents (TOC) with scroll-spy highlighting
+- Estimated reading time and reading progress tracking
+- RSS feed output (`/feed`, `/rss`)
+
+**Reading Experience**
+- Four themes: Light, Dark, Sunset, Auto (follows system)
+- Four fonts: System Default, Serif, Kai, Song
+- Font size slider with real-time preview
+
+**Search & Navigation**
+- Real-time search suggestions
+- Search history (localStorage)
+- Popular posts recommendations
+- Browse by category and archive date
+
+**Admin Panel**
+- Dashboard with post count, views, visitor stats
+- Post management (CRUD)
+- Category management (with sub-categories)
+- Friend links management
+- System settings (title, description, SEO keywords, ICP, etc.)
+- Profile editing
+
+**Security**
+- Arithmetic CAPTCHA on login
+- IP-based login lockout (5 failures in 15 minutes)
+
+## Quick Start
+
+### Requirements
+
+- Python 3.8+
+- pip
+- MySQL 5.7+ / 8.0+
+
+### Installation
+
+```bash
+# Clone the project
+git clone <repo-url> && cd Blog
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create MySQL database
+mysql -u root -p -e "CREATE DATABASE blog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# Configure database connection
+export MYSQL_HOST=127.0.0.1
+export MYSQL_PORT=3306
+export MYSQL_USER=blog
+export MYSQL_PASSWORD=your_password
+export MYSQL_DATABASE=blog
+
+# Initialize database and seed sample data
+python seed.py
+
+# Start (development mode)
+python app.py
+```
+
+Visit http://127.0.0.1:5000
+
+Default admin: `admin` / `admin123`
+
+### LAN Access
+
+```bash
+# app.py listens on 0.0.0.0 by default
+app.run(host='0.0.0.0', port=5000, debug=True)
+```
+
+Other devices access via `http://<your-LAN-IP>:5000`.
+
+> Note: Flask dev server is for trusted networks only. Use Gunicorn / Waitress for production.
+
+## Project Structure
+
+```
+Blog/
+├── app.py                   # Entry point
+├── config.py                # Configuration
+├── requirements.txt         # Python dependencies
+├── seed.py                  # Database seeder
+├── DEVELOPMENT.md           # Development guide & changelog
+├── blog/
+│   ├── __init__.py          # Flask app factory
+│   ├── db.py                # MySQL wrapper (PyMySQL)
+│   ├── models/              # Data models
+│   │   ├── post.py          #   Posts
+│   │   ├── category.py      #   Categories
+│   │   ├── link.py          #   Friend links
+│   │   ├── user.py          #   Users
+│   │   └── setting.py       #   Settings (with cache)
+│   ├── routes/              # Route handlers
+│   │   ├── main.py          #   Frontend pages + SEO endpoints
+│   │   ├── admin.py         #   Admin management
+│   │   └── api.py           #   JSON API
+│   ├── middleware/
+│   │   └── auth.py          # Login/admin decorators
+│   └── utils/
+│       └── helpers.py       # Utility functions
+├── templates/               # Jinja2 templates
+│   ├── base.html            #   Master layout
+│   ├── macros/              #   Reusable components
+│   │   ├── post_card.html   #     Post card
+│   │   └── pagination.html  #     Pagination
+│   ├── frontend/            #   Frontend pages
+│   ├── admin/               #   Admin pages
+│   ├── feed.xml             #   RSS template
+│   ├── robots.txt           #   Robots template
+│   └── sitemap.xml          #   Sitemap template
+├── static/                  # Static assets
+│   ├── css/
+│   │   ├── style.css        #   Frontend styles (CSS custom properties)
+│   │   └── admin.css        #   Admin styles
+│   ├── js/
+│   │   ├── main.js          #   Frontend JavaScript
+│   │   └── admin.js         #   Admin JavaScript
+│   └── uploads/             #   User uploads
+└── database/
+    └── schema.sql           # Database schema (MySQL)
+```
+
+## Configuration
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `SECRET_KEY` | Session encryption key | `blog-dev-key-...` |
+| `MYSQL_HOST` | MySQL host | `127.0.0.1` |
+| `MYSQL_PORT` | MySQL port | `3306` |
+| `MYSQL_USER` | MySQL user | `blog` |
+| `MYSQL_PASSWORD` | MySQL password | (empty) |
+| `MYSQL_DATABASE` | MySQL database name | `blog` |
+| `MYSQL_CHARSET` | MySQL charset | `utf8mb4` |
+| `UPLOAD_FOLDER` | Upload directory | `static/uploads` |
+| `ALLOWED_EXTENSIONS` | Allowed upload types | Image formats |
+| `MAX_CONTENT_LENGTH` | Upload size limit | 16MB |
+| `ITEMS_PER_PAGE` | Posts per page | 5 |
+
+Production: set `SECRET_KEY` via environment variable with a strong random string.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Flask 3.1 |
+| Template | Jinja2 3.1 |
+| Database | MySQL + PyMySQL |
+| Frontend | Vanilla JavaScript |
+| Styling | CSS Custom Properties (theming) |
+| Auth | PBKDF2-SHA256 + Session |
+| Deployment | Gunicorn / Waitress |
+
+## Screenshots
+
+Homepage card layout — article cover images with title, category, and date centered overlay, responsive design.
+
+## License
+
+MIT
+
+---
+
+<a id="中文"></a>
+
 # 远山
 
-> 个人博客系统 · 基于 Flask + SQLite
+> 个人博客系统 · 基于 Flask + MySQL
+
+[切换到英文 / Switch to English](#english) | [返回顶部](#top)
 
 远山是一个功能完整的个人博客，采用 Python Flask 框架开发，支持 Markdown 写作、多主题切换、后台管理、RSS 订阅等特性，适合个人搭建轻量级博客站点。
 
@@ -42,6 +231,7 @@
 
 - Python 3.8+
 - pip
+- MySQL 5.7+ / 8.0+
 
 ### 安装
 
@@ -51,6 +241,16 @@ git clone <repo-url> && cd Blog
 
 # 安装依赖
 pip install -r requirements.txt
+
+# 创建 MySQL 数据库
+mysql -u root -p -e "CREATE DATABASE blog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# 配置数据库连接
+export MYSQL_HOST=127.0.0.1
+export MYSQL_PORT=3306
+export MYSQL_USER=blog
+export MYSQL_PASSWORD=your_password
+export MYSQL_DATABASE=blog
 
 # 初始化数据库并填充示例数据
 python seed.py
@@ -82,48 +282,57 @@ Blog/
 ├── config.py                # 配置文件
 ├── requirements.txt         # Python 依赖
 ├── seed.py                  # 示例数据填充
+├── DEVELOPMENT.md           # 开发文档与变更日志
 ├── blog/
 │   ├── __init__.py          # Flask 应用工厂
-│   ├── db.py                # SQLite 封装
+│   ├── db.py                # MySQL 封装
 │   ├── models/              # 数据模型层
 │   │   ├── post.py          #   文章
 │   │   ├── category.py      #   分类
 │   │   ├── link.py          #   友链
 │   │   ├── user.py          #   用户
-│   │   └── setting.py       #   设置
+│   │   └── setting.py       #   设置（带缓存）
 │   ├── routes/              # 路由层
-│   │   ├── main.py          #   前台页面
+│   │   ├── main.py          #   前台页面 + SEO 端点
 │   │   ├── admin.py         #   后台管理
 │   │   └── api.py           #   JSON 接口
 │   ├── middleware/
-│   │   └── auth.py          # 登录鉴权
+│   │   └── auth.py          # 登录鉴权装饰器
 │   └── utils/
 │       └── helpers.py       # 工具函数
 ├── templates/               # Jinja2 模板
 │   ├── base.html            #   基础布局
-│   ├── feed.xml             #   RSS 模板
+│   ├── macros/              #   可复用组件
+│   │   ├── post_card.html   #     文章卡片
+│   │   └── pagination.html  #     分页
 │   ├── frontend/            #   前台页面
-│   └── admin/               #   后台页面
+│   ├── admin/               #   后台页面
+│   ├── feed.xml             #   RSS 模板
+│   ├── robots.txt           #   爬虫规则
+│   └── sitemap.xml          #   站点地图
 ├── static/                  # 静态资源
 │   ├── css/
-│   │   ├── style.css        #   前台样式
+│   │   ├── style.css        #   前台样式（CSS 自定义属性）
 │   │   └── admin.css        #   后台样式
 │   ├── js/
 │   │   ├── main.js          #   前台脚本
 │   │   └── admin.js         #   后台脚本
 │   └── uploads/             #   上传文件
 └── database/
-    └── schema.sql           # 数据库建表语句
+    └── schema.sql           # 数据库建表语句（MySQL）
 ```
 
 ## 配置
 
-编辑 `config.py`：
-
 | 配置项 | 说明 | 默认值 |
 |--------|------|--------|
 | `SECRET_KEY` | 会话加密密钥 | `blog-dev-key-...` |
-| `DATABASE` | SQLite 数据库路径 | `database/blog.db` |
+| `MYSQL_HOST` | MySQL 主机 | `127.0.0.1` |
+| `MYSQL_PORT` | MySQL 端口 | `3306` |
+| `MYSQL_USER` | MySQL 用户 | `blog` |
+| `MYSQL_PASSWORD` | MySQL 密码 | 空 |
+| `MYSQL_DATABASE` | MySQL 数据库名 | `blog` |
+| `MYSQL_CHARSET` | MySQL 字符集 | `utf8mb4` |
 | `UPLOAD_FOLDER` | 文件上传目录 | `static/uploads` |
 | `ALLOWED_EXTENSIONS` | 允许上传的后缀 | 图片格式 |
 | `MAX_CONTENT_LENGTH` | 上传大小上限 | 16MB |
@@ -137,10 +346,11 @@ Blog/
 |------|------|
 | 后端框架 | Flask 3.1 |
 | 模板引擎 | Jinja2 3.1 |
-| 数据库 | SQLite 3（WAL 模式） |
+| 数据库 | MySQL + PyMySQL |
 | 前端 | 原生 JavaScript |
 | 样式 | CSS 自定义属性（主题变量） |
-| 依赖管理 | pip + requirements.txt |
+| 认证 | PBKDF2-SHA256 + Session |
+| 部署 | Gunicorn / Waitress |
 
 ## 截图
 
