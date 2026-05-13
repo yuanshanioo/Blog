@@ -337,13 +337,16 @@ def upload_image():
     if not allowed_file(file.filename):
         return jsonify({'error': '不支持的文件类型'}), 400
 
-    upload_folder = current_app.config['UPLOAD_FOLDER']
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
-
     ext = os.path.splitext(file.filename)[1].lower() or '.png'
     unique_name = f"{uuid.uuid4().hex}{ext}"
-    filepath = os.path.join(upload_folder, unique_name)
-    file.save(filepath)
+    data = file.read()
+    mime_type = file.content_type or 'application/octet-stream'
+    user_id = session.get('user_id')
 
-    return jsonify({'url': f'/media/{unique_name}', 'filename': unique_name})
+    insert_id = execute(
+        "INSERT INTO uploads (filename, original_name, mime_type, size, path, data, uploader_id) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (unique_name, file.filename, mime_type, len(data), f'/media/{unique_name}', data, user_id)
+    )
+
+    return jsonify({'url': f'/media/{insert_id}', 'filename': str(insert_id)})

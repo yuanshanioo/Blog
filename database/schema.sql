@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS uploads (
     mime_type VARCHAR(100) NOT NULL,
     size INT NOT NULL DEFAULT 0,
     path VARCHAR(500) NOT NULL,
+    data LONGBLOB,
     uploader_id INT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (uploader_id) REFERENCES users(id) ON DELETE SET NULL

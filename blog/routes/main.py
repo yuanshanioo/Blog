@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, abort, redirect, url_for, make_response, jsonify, send_from_directory, current_app
+from flask import Blueprint, render_template, request, abort, redirect, url_for, make_response, jsonify, send_from_directory, current_app, Response
 from blog.models.post import (get_posts, get_post_by_slug, get_archives,
                                search_posts, increment_views, get_recent_posts,
                                get_popular_posts, get_prev_next_posts, get_related_posts)
@@ -126,6 +126,16 @@ def hot_searches():
 
 @main_bp.route('/media/<path:filename>')
 def serve_upload(filename):
+    # Try numeric ID first (new uploads stored in DB)
+    if filename.isdigit():
+        row = query("SELECT data, mime_type FROM uploads WHERE id = %s", (int(filename),), one=True)
+        if row and row.get('data'):
+            resp = Response(row['data'], mimetype=row['mime_type'])
+            resp.headers['Cache-Control'] = 'public, max-age=2592000'
+            return resp
+        abort(404)
+
+    # Fallback: old uploads on filesystem (e.g. /media/abc123.png)
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
 
 
